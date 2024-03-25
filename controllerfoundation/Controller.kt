@@ -1,6 +1,5 @@
 package com.example.controllerfoundation
 
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -14,36 +13,43 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-
-var Index = 0
 
 enum class ScreenNames {
     HOME,
     PAGE,
 }
 
+class MyViewModel : ViewModel() {
+    var currentIndex by mutableStateOf(0)
+}
+
 @Composable
 fun Controllers(navController: NavHostController = rememberNavController()) {
+    val viewModel: MyViewModel = viewModel()
     NavHost(navController = navController, startDestination = ScreenNames.HOME.name) {
         composable(route = ScreenNames.HOME.name) {
             Home(navController = navController, itemS = listOfItems)
         }
         composable(route = ScreenNames.PAGE.name) {
-            ItemPage(itemS = listOfItems, navController = navController)
+            ItemPage(itemS = listOfItems, navController = navController, viewModel= viewModel)
         }
     }
 }
-
 @Composable
 fun Home(navController: NavHostController, itemS: List<Item>) {
     Surface(
@@ -68,8 +74,8 @@ fun Home(navController: NavHostController, itemS: List<Item>) {
             }
             Button(
                 onClick = {
-                    Log.d("print", Index.toString())
-                    navController.navigate(ScreenNames.PAGE.name) },
+                    navController.navigate(ScreenNames.PAGE.name)
+                },
             ) {
                 Text("Next")
             }
@@ -103,7 +109,7 @@ fun Card(name: String, price: String, img: Int) {
 }
 
 @Composable
-fun ItemPage(navController: NavHostController, itemS: List<Item>) {
+fun ItemPage(navController: NavHostController, itemS: List<Item>, viewModel: MyViewModel) {
     Surface(
         color = MaterialTheme.colorScheme.background
     ) {
@@ -112,13 +118,13 @@ fun ItemPage(navController: NavHostController, itemS: List<Item>) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(itemS[Index].name)
-            Text(itemS[Index].info)
-            Text(itemS[Index].price)
+            Text(itemS[viewModel.currentIndex].name)
+            Text(itemS[viewModel.currentIndex].info)
+            Text(itemS[viewModel.currentIndex].price)
 
             Image(
-                painter = painterResource(itemS[Index].imageResource),
-                contentDescription = itemS[Index].name,
+                painter = painterResource(itemS[viewModel.currentIndex].imageResource),
+                contentDescription = itemS[viewModel.currentIndex].name,
                 contentScale = ContentScale.Fit,
                 modifier = Modifier.size(180.dp)
             )
@@ -129,9 +135,8 @@ fun ItemPage(navController: NavHostController, itemS: List<Item>) {
             ) {
                 Button(
                     onClick = {
-                        Log.d("print", Index.toString())
-                        if (Index > 0) {
-                            Index--
+                        if (viewModel.currentIndex > 0) {
+                            viewModel.currentIndex--
                         }
                         navController.popBackStack()
                     }
@@ -140,12 +145,11 @@ fun ItemPage(navController: NavHostController, itemS: List<Item>) {
                 }
                 Button(
                     onClick = {
-                        Log.d("print", Index.toString())
-                        if (Index < itemS.size - 1) {
-                            Index++
+                        if (viewModel.currentIndex < itemS.size - 1) {
+                            viewModel.currentIndex++
                             navController.navigate(ScreenNames.PAGE.name)
-                        }else{
-                            Index = 0
+                        } else {
+                            viewModel.currentIndex = 0
                             navController.navigate(ScreenNames.HOME.name)
                         }
                     }
