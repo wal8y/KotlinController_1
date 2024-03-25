@@ -63,7 +63,7 @@ fun Home(navController: NavHostController, itemS: List<Item>) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 items(itemS) { item ->
-                    Card(name = item.name, Price = item.price, img = item.imageResource)
+                    Card(name = item.name, price = item.price, img = item.imageResource)
                 }
             }
             Button(
@@ -78,7 +78,7 @@ fun Home(navController: NavHostController, itemS: List<Item>) {
 }
 
 @Composable
-fun Card(name: String, Price: String, img: Int) {
+fun Card(name: String, price: String, img: Int) {
     Row(
         modifier = Modifier
             .padding(10.dp)
@@ -96,7 +96,7 @@ fun Card(name: String, Price: String, img: Int) {
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(text = name)
-            Text(text = Price)
+            Text(text = price)
         }
         Image(painter = painterResource(img), contentDescription = name)
     }
@@ -143,8 +143,11 @@ fun ItemPage(navController: NavHostController, itemS: List<Item>) {
                         Log.d("print", Index.toString())
                         if (Index < itemS.size - 1) {
                             Index++
+                            navController.navigate(ScreenNames.PAGE.name)
+                        }else{
+                            Index = 0
+                            navController.navigate(ScreenNames.HOME.name)
                         }
-                        navController.navigate(ScreenNames.PAGE.name)
                     }
                 ) {
                     Text("Next")
